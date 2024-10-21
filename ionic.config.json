@@ -1,0 +1,7 @@
+{
+  "name": "Modelame_final",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
