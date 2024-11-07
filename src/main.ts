@@ -2,6 +2,8 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router';
 
+import { createPinia } from 'pinia';
+
 import { IonicVue } from '@ionic/vue';
 
 /* Core CSS required for Ionic components to work properly */
@@ -38,6 +40,16 @@ const app = createApp(App)
   .use(IonicVue)
   .use(router);
 
+// Use IonicVue plugin
+app.use(IonicVue);
+
+// Use Pinia state management
+app.use(createPinia());
+
+// Use the router
+app.use(router);
+
+// Wait for the router to be ready before mounting the app
 router.isReady().then(() => {
   app.mount('#app');
 });

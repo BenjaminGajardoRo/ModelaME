@@ -1,39 +1,88 @@
 import { createRouter, createWebHistory } from '@ionic/vue-router';
 import { RouteRecordRaw } from 'vue-router';
-import TabsPage from '../views/TabsPage.vue'
+import Tabs from '../views/TabsPage.vue'; 
+import RegisterView from '../views/RegisterView.vue'; 
+import LoginView from '../views/LoginView.vue'; 
+import CastingView from '@/views/CastingsView.vue'; 
+import UserProfileView from '@/views/UserProfile.vue';
+import ModelsView from '../views/ModelsView.vue'; 
+import PublishCas from '@/views/PublishCas.vue'; 
+
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/firebase';
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/tabs/tab1'
+    redirect: '/login' 
   },
   {
-    path: '/tabs/',
-    component: TabsPage,
+    path: '/login',
+    name: 'Login',
+    component: LoginView 
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: RegisterView 
+  },
+  {
+    path: '/tabs',
+    component: Tabs,
     children: [
       {
         path: '',
-        redirect: '/tabs/tab1'
+        redirect: '/tabs/castings' 
       },
       {
-        path: 'tab1',
-        component: () => import('@/views/Tab1Page.vue')
+        path: 'Castings',
+        name: 'Castings',
+        component: CastingView, 
+        meta: { requiredAuth: true } 
       },
       {
-        path: 'tab2',
-        component: () => import('@/views/Tab2Page.vue')
+        path: 'Profile',
+        name: 'UserProfile',
+        component: UserProfileView,
+        meta: { requiredAuth: true } 
       },
       {
-        path: 'tab3',
-        component: () => import('@/views/Tab3Page.vue')
+        path: 'Models',
+        name: 'Models',
+        component: ModelsView,
+        meta: { requiredAuth: true } 
       }
-    ]
+    ],
+    meta: { requiredAuth: true } 
   }
-]
+];
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes
-})
+});
 
-export default router
+const getCurrentUser = () => {
+  return new Promise((resolve, reject) => {
+    const removeListener = onAuthStateChanged(
+      auth,
+      (user) => {
+        removeListener();
+        resolve(user);
+      },
+      reject
+    );
+  });
+};
+
+router.beforeEach(async (to, from, next) => {
+  if (to.matched.some((record) => record.meta.requiredAuth)) {
+    if (await getCurrentUser()) {
+      next();
+    } else {
+      next({ name: 'Login' });
+    }
+  } else next();
+});
+
+export default router;
